@@ -12,12 +12,20 @@
         background-color: #a91c13;
         color: white;
         margin: 0;
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -khtml-user-select: none;
+        -moz-user-select: moz-none;
+        -ms-user-select: none;
+        -o-user-select: none;
+          user-select: none;
       }
       #radios {
         position: relative;
         background-color: #ffffffaa;
         z-index:5;
         width: 303px;
+        margin-bottom: 20px;
       }
       input {
         display: none;
@@ -70,6 +78,59 @@
         transform: translateX(201px);
         transition: transform 0.5s ease-in-out;
       }
+      .moveBtn {
+        border: white solid 1px;
+        background-color: transparent;
+        color: white;
+        cursor: pointer;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      .moveBtn.x {
+        width: 50px;
+        height: 100%;
+      }
+      .moveBtn.y {
+        width: 100%;
+        height: 50px;
+      }
+      .arrow-up {
+        width: 0; 
+        height: 0; 
+        border-left: 25px solid transparent;
+        border-right: 25px solid transparent;
+        
+        border-bottom: 25px solid white;
+      }
+      .arrow-right {
+        width: 0; 
+        height: 0; 
+        border-top: 25px solid transparent;
+        border-bottom: 25px solid transparent;
+        
+        border-left: 25px solid white;
+      }
+      .arrow-down {
+        width: 0; 
+        height: 0; 
+        border-left: 25px solid transparent;
+        border-right: 25px solid transparent;
+        
+        border-top: 25px solid white;
+      }
+      .arrow-left {
+        width: 0; 
+        height: 0; 
+        border-top: 25px solid transparent;
+        border-bottom: 25px solid transparent;
+        
+        border-right: 25px solid white;
+      }
+      
+      .moveBtn.selected {
+        background-color: #ffffffcc;
+      }
     </style>
 	</head>
 	<body>
@@ -84,18 +145,31 @@
         <label class="labels" for="rad3">Vertical</label>
         <div id="bckgrnd"></div>
       </div>
-      
-      <div id="joyDiv" style="margin: 0;"></div>
+      <div id="x:0|y:+" class="moveBtn y"><span class="arrow-up"></span></div>
+      <div style="display: flex;">
+        <div id="x:-|y:0" class="moveBtn x"><span class="arrow-left"></span></div>
+        <div id="joyDiv" style="margin: 0;"></div>
+        <div id="x:+|y:0" class="moveBtn x"><span class="arrow-right"></span></div>
+      </div>
+      <div id="x:0|y:-" class="moveBtn y"><span class="arrow-down"></span></div>
     </div>
     <script type="text/javascript">
-      const width=window.innerWidth,height=window.innerHeight;var size=width<height?width:height;document.getElementById("joyDiv").style.width=size+"px",document.getElementById("joyDiv").style.height=size+"px";const config={title:"Remote",internalFillColor:"#FFF",internalStrokeColor:"#CCC",externalStrokeColor:"#FFF",axis:"x"};var joy=new JoyStick("joyDiv",config,(function(e){console.log("x: ",e.x),1==websocket.readyState&&websocket.send(`x:${e.x}|y:${e.y}`)}));document.querySelectorAll("input[type='radio']").forEach((e=>{e.addEventListener("change",(()=>{console.log("axis: ",e.value),joy.SetAxis(e.value)}))}));var websocket,gateway=`ws://${window.location.hostname}/ws`;function initWebSocket(){console.log("Trying to open a WebSocket connection..."),(websocket=new WebSocket(gateway)).onopen=onOpen,websocket.onclose=onClose,websocket.onmessage=onMessage}function onOpen(e){console.log("Connection opened")}function onClose(e){console.log("Connection closed"),setTimeout(initWebSocket,2e3)}function onMessage(e){var o;o="1"==e.data?"ON":"OFF",document.getElementById("state").innerHTML=o}function onLoad(e){initWebSocket()}window.addEventListener("load",onLoad);
+      const width=window.innerWidth,height=window.innerHeight;var loopTimer=null,size=width<height?width:height;size-=100,document.getElementById("joyDiv").style.width=size+"px",document.getElementById("joyDiv").style.height=size+"px",document.querySelectorAll(".moveBtn.x").forEach((e=>{e.style.height=size+"px"})),document.querySelectorAll(".moveBtn.y").forEach((e=>{e.style.width=size+"px"}));const config={title:"Remote",internalFillColor:"#FFF",internalStrokeColor:"#CCC",externalStrokeColor:"#FFF",axis:"x"};var joy=new JoyStick("joyDiv",config,(function(e){console.log("x: ",e.x),loopTimer||sendEvent(`x:${e.x}|y:${e.y}`)}));function btnEvent(e,o){console.log("type: ",o),"touchstart"==o||"mousedown"==o?(sendEvent(e.id),e.classList.add("selected"),loopTimer=setInterval((()=>{sendEvent(e.id)}),90)):"touchend"!=o&&"mouseup"!=o||(sendEvent("x:0|y:0"),e.classList.remove("selected"),loopTimer&&(clearInterval(loopTimer),loopTimer=null))}function sendEvent(e){console.log("msg: ",e),1==websocket.readyState&&websocket.send(e)}document.querySelectorAll("input[type='radio']").forEach((e=>{e.addEventListener("change",(()=>{console.log("axis: ",e.value),joy.SetAxis(e.value)}))})),document.querySelectorAll(".moveBtn").forEach((e=>{e.addEventListener("mousedown",(o=>{btnEvent(e,o.type)})),e.addEventListener("mouseup",(o=>{btnEvent(e,"mouseup")})),e.addEventListener("mouseleave",(o=>{btnEvent(e,"mouseup")})),e.addEventListener("touchstart",(o=>{btnEvent(e,o.type)})),e.addEventListener("touchend",(o=>{btnEvent(e,"touchend")})),e.addEventListener("touchcancel",(o=>{btnEvent(e,"touchend")}))}));var websocket,gateway=`ws://${window.location.hostname}/ws`;function initWebSocket(){console.log("Trying to open a WebSocket connection..."),(websocket=new WebSocket(gateway)).onopen=onOpen,websocket.onclose=onClose,websocket.onmessage=onMessage}function onOpen(e){console.log("Connection opened")}function onClose(e){console.log("Connection closed"),setTimeout(initWebSocket,2e3)}function onMessage(e){var o;o="1"==e.data?"ON":"OFF",document.getElementById("state").innerHTML=o}function onLoad(e){initWebSocket()}window.addEventListener("load",onLoad);
     </script>
 		<!-- <script type="text/javascript">
       const width = window.innerWidth;
       const height = window.innerHeight;
+      var loopTimer = null;
       var size = width < height ? width : height;
+      size -= 100;
       document.getElementById("joyDiv").style.width = size + "px";
       document.getElementById("joyDiv").style.height = size + "px";
+      document.querySelectorAll(".moveBtn.x").forEach((btn) => {
+        btn.style.height = size + "px";
+      });
+      document.querySelectorAll(".moveBtn.y").forEach((btn) => {
+        btn.style.width   = size + "px";
+      });
 
       const config = {
         title: "Remote",
@@ -106,7 +180,9 @@
       }
       var joy = new JoyStick('joyDiv', config, function(stickData) {
         console.log('x: ', stickData.x);
-        websocket.readyState == 1 && websocket.send(`x:${stickData.x}|y:${stickData.y}`);
+        if (!loopTimer) {
+          sendEvent(`x:${stickData.x}|y:${stickData.y}`)
+        }
       });
 
       document.querySelectorAll("input[type='radio']").forEach((input) => {
@@ -115,6 +191,41 @@
           joy.SetAxis(input.value);
         });
       });
+
+      document.querySelectorAll(".moveBtn").forEach((btn) => {
+        btn.addEventListener('mousedown', (e) => {btnEvent(btn, e.type)});
+        btn.addEventListener('mouseup', (e) => {btnEvent(btn, 'mouseup')});
+        btn.addEventListener('mouseleave', (e) => {btnEvent(btn, 'mouseup')});
+        
+        btn.addEventListener('touchstart', (e) => {btnEvent(btn, e.type)});
+        btn.addEventListener('touchend', (e) => {btnEvent(btn, 'touchend')});
+        btn.addEventListener('touchcancel', (e) => {btnEvent(btn, 'touchend')});
+      });
+
+      function btnEvent(btn, type) {
+        console.log('type: ', type);
+        if (type == 'touchstart' || type == 'mousedown') {
+          sendEvent(btn.id);
+          btn.classList.add("selected")
+          loopTimer = setInterval(() => {
+            sendEvent(btn.id);
+          }, 90);
+        } else if (type == 'touchend' || type == 'mouseup') {
+          sendEvent('x:0|y:0');
+          btn.classList.remove("selected")
+          if (loopTimer) {
+            clearInterval(loopTimer);
+            loopTimer = null
+          }
+        }
+      }
+
+      function sendEvent(msg) {
+        console.log('msg: ', msg);
+        if (websocket.readyState == 1) {
+          websocket.send(msg);
+        }
+      }
 
       var gateway = `ws://${window.location.hostname}/ws`;
       var websocket;

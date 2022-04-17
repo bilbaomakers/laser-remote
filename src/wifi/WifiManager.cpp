@@ -6,7 +6,7 @@ WifiManager::WifiManager(const char* ssid, const char* password) : _server(80), 
   _password = password;
 }
 
-void WifiManager::setup(std::function<void(int speedX, int speedY)> setSpeed) {
+void WifiManager::setup(std::function<void(char* speedX, char* speedY)> setSpeed) {
   // setup
   _setSpeed = setSpeed;
   
@@ -44,7 +44,7 @@ void WifiManager::handleWebSocketMessage(void *arg, uint8_t *data, size_t len) {
   if (info->final && info->index == 0 && info->len == len && info->opcode == WS_TEXT) {
     data[len] = 0;
     char* chars_array = strtok((char*)data, "|:");
-    int xy[2] = {0, 0};
+    char* xy[2] = {0, 0};
     int index = 0;
     while(chars_array)
     {
@@ -53,11 +53,11 @@ void WifiManager::handleWebSocketMessage(void *arg, uint8_t *data, size_t len) {
         } else if (chars_array[0] == 'y') {
             index = 1;
         } else {
-            xy[index] = atoi(chars_array);
+            xy[index] = chars_array;
         }
         chars_array = strtok(NULL, "|:");
     }
-    _setSpeed(xy[0] * 10, xy[1] * 10);
+    _setSpeed(xy[0], xy[1]);
   }
 }
 
