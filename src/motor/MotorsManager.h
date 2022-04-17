@@ -26,12 +26,20 @@ class MotorsManager {
 
     /// Constructor.
     /// \param[in] x_motor_pins 4 Pins for X motor.
-    MotorsManager(int x_motor_pins[4]);
+    /// \param[in] y_motor_pins 4 Pins for Y motor.
+    MotorsManager(int x_motor_pins[4], int y_motor_pins[4]);
     
     /// Function to say motor X to move.
     void moveHorizontal(int step, bool autoStop);
 
+    /// Function to set specific speed to motor X.
     void setSpeedX(int speed); 
+    
+    /// Function to say motor Y to move.
+    void moveVertical(int step, bool autoStop);
+
+    /// Function to set specific speed to motor Y.
+    void setSpeedY(int speed); 
 
     /// Function to be called on setup
     void setup(); 
@@ -41,13 +49,21 @@ class MotorsManager {
   
   private:
     /// Horizontal motor.
-    AccelStepper _stepperX;
-    bool _autoStop = false;
     unsigned int _index = 0;
+
+    AccelStepper _stepperX;
+    bool _autoStopX = false;
     int _stepX = 0.0;
     double _targetSpeedX = 0.0;
     double _speedX = 0.0;
     unsigned int _lastTimeX = 0;
+    
+    AccelStepper _stepperY;
+    bool _autoStopY = false;
+    int _stepY = 0.0;
+    double _targetSpeedY = 0.0;
+    double _speedY = 0.0;
+    unsigned int _lastTimeY = 0;
 
 };
 
