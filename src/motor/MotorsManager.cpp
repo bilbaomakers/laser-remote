@@ -34,35 +34,33 @@ void MotorsManager::setSpeedX(int speed) {
 }
 
 void MotorsManager::loop() {
-  if (_autoStop && _speedX != 0.0) {
+  if (_autoStop && _targetSpeedX != 0.0) {
      unsigned int time = millis() - _lastTimeX;
     if (time > DEBOUNCE_MILLIS) {
       _targetSpeedX = 0.0;
+      Serial.println("TIMEOUT!!!");
     }
-  }
-
-  if (_speedX != _targetSpeedX) {
-    if (_targetSpeedX == 0.0) {
-      _speedX = 0.0;  
-    } else {
-      _speedX += _stepX;
-      if ((_speedX < 0 && _speedX < _targetSpeedX) || (_speedX > 0 && _speedX > _targetSpeedX)) {
-        _speedX = _targetSpeedX;
-      }
-    }
-
-    Serial.print("Target: ");
-    Serial.print(_targetSpeedX);
-    Serial.print(" - X: ");
-    Serial.println(_speedX);
-
-   
   }
   
   _index += 1;
   if (_index > 8) {
-     _stepperX.setSpeed(_speedX);
     _index = 0;
+    if (_speedX != _targetSpeedX) {
+      if (_targetSpeedX == 0.0) {
+        _speedX = 0.0;  
+      } else {
+        _speedX += _stepX;
+        if ((_speedX < 0 && _speedX < _targetSpeedX) || (_speedX > 0 && _speedX > _targetSpeedX)) {
+          _speedX = _targetSpeedX;
+        }
+      }
+
+      Serial.print("Target: ");
+      Serial.print(_targetSpeedX);
+      Serial.print(" - X: ");
+      Serial.println(_speedX);
+      _stepperX.setSpeed(_speedX);
+    }
   }
   _stepperX.runSpeed();
 }

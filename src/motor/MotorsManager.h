@@ -43,7 +43,7 @@ class MotorsManager {
     /// Horizontal motor.
     AccelStepper _stepperX;
     bool _autoStop = false;
-    int _index = 0;
+    unsigned int _index = 0;
     int _stepX = 0.0;
     double _targetSpeedX = 0.0;
     double _speedX = 0.0;
