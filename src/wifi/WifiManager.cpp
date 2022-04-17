@@ -53,7 +53,21 @@ void WifiManager::handleWebSocketMessage(void *arg, uint8_t *data, size_t len) {
     data[len] = 0;
     Serial.print("Data: ");
     Serial.println((char*)data);
-    _setSpeed(atoi((char*)data) * 10, 0);
+    char* chars_array = strtok((char*)data, "|:");
+    int xy[2] = {0, 0};
+    int index = 0;
+    while(chars_array)
+    {
+        if (chars_array[0] == 'x') {
+            index = 0;
+        } else if (chars_array[0] == 'y') {
+            index = 1;
+        } else {
+            xy[index] = atoi(chars_array);
+        }
+        chars_array = strtok(NULL, "|:");
+    }
+    _setSpeed(xy[0] * 10, xy[1] * 10);
     // if (strcmp((char*)data, "toggle") == 0) {
     //   ledState = !ledState;
     //   notifyClients();

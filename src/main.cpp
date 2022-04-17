@@ -16,8 +16,10 @@ void setup()
   delay(5000);
 
   wifiManager.setup([](int speedX, int speedY) {
-    Serial.print("Event: ");
+    Serial.print("X: ");
     Serial.println(speedX);
+    Serial.print("Y: ");
+    Serial.println(speedY);
     motorsManager.setSpeedX(speedX);
   });
   motorsManager.setup();
