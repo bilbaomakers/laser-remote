@@ -15,16 +15,30 @@ void setup()
   Serial.begin(9600);
   delay(5000);
 
-  wifiManager.setup([](int speedX, int speedY) {
-    motorsManager.setSpeedX(speedX);
+  wifiManager.setup([](char* speedX, char* speedY) {
+    if (strcmp(speedX, "+") == 0) {
+      Serial.println("ACT LIKE +");
+      motorsManager.moveHorizontal(SPEED_STEP, false);
+    } else if (strcmp(speedX, "-") == 0) {
+      Serial.println("ACT LIKE -");
+      motorsManager.moveHorizontal(-SPEED_STEP, false);
+    } else {
+      motorsManager.setSpeedX(atoi(speedX) * 10);
+    }
   });
   motorsManager.setup();
 }
+
+unsigned int lastTime = 0;
 
 void loop()
 {
   if (Serial.available()) {
     byte ch = Serial.read();
+    unsigned int time = millis() - lastTime;
+    Serial.print("MILLIS: ");
+    Serial.println(time);
+    lastTime = millis();
     if (ch == '+') {
       motorsManager.moveHorizontal(SPEED_STEP, true);
     } else if (ch == '-') {
