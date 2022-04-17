@@ -9,6 +9,7 @@
 
 #define HALFSTEP 8
 #define DEBOUNCE_MILLIS 300
+#define MAX_SPEED 1000.0
 
 /////////////////////////////////////////////////////////////////////
 /// \class MotorsManager MotorsManager.h <MotorsManager.h>
@@ -27,11 +28,8 @@ class MotorsManager {
     /// \param[in] x_motor_pins 4 Pins for X motor.
     MotorsManager(int x_motor_pins[4]);
     
-    /// Function to say motor X to move clockwise.
-    void moveRight(int step); 
-
-    /// Function to say motor X to move anticlockwise.
-    void moveLeft(int step);
+    /// Function to say motor X to move.
+    void moveHorizontal(int step, bool autoStop);
 
     void setSpeedX(int speed); 
 
@@ -45,6 +43,9 @@ class MotorsManager {
     /// Horizontal motor.
     AccelStepper _stepperX;
     bool _autoStop = false;
+    int _index = 0;
+    int _stepX = 0.0;
+    double _targetSpeedX = 0.0;
     double _speedX = 0.0;
     unsigned int _lastTimeX = 0;
 

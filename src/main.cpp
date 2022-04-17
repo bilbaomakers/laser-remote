@@ -16,10 +16,6 @@ void setup()
   delay(5000);
 
   wifiManager.setup([](int speedX, int speedY) {
-    Serial.print("X: ");
-    Serial.println(speedX);
-    Serial.print("Y: ");
-    Serial.println(speedY);
     motorsManager.setSpeedX(speedX);
   });
   motorsManager.setup();
@@ -30,9 +26,9 @@ void loop()
   if (Serial.available()) {
     byte ch = Serial.read();
     if (ch == '+') {
-      motorsManager.moveRight(SPEED_STEP);
+      motorsManager.moveHorizontal(SPEED_STEP, true);
     } else if (ch == '-') {
-      motorsManager.moveLeft(SPEED_STEP);
+      motorsManager.moveHorizontal(-SPEED_STEP, true);
     }
   }
 
