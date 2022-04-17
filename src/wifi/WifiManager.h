@@ -19,12 +19,8 @@ class WifiManager {
     /// Function to be called in every loop to update motors
     void loop(); 
 
-    void notifyClients();
     void handleWebSocketMessage(void *arg, uint8_t *data, size_t len);
     void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len);
-    String processor(const String& var);
-
-    String processHtml();
   
   private:
     AsyncWebServer _server;
@@ -32,10 +28,7 @@ class WifiManager {
     const char* _ssid;
     const char* _password;
 
-    std::function<void(int speedX, int speedY)> _setSpeed;    
-
-    bool ledState = 0;
-    const int ledPin = 2;
+    std::function<void(int speedX, int speedY)> _setSpeed;
 };
 
 const char _index_html[] PROGMEM = R"rawliteral(

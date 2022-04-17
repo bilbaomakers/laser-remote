@@ -27,10 +27,7 @@ void WifiManager::setup(std::function<void(int speedX, int speedY)> setSpeed) {
   // Route for root / web page
   _server.on("/", HTTP_GET, [&](AsyncWebServerRequest *request) {
     Serial.println("Load /");
-    // request->send(200, "text/html", "HOLA MUNDO!!!!!");
-    request->send_P(200, "text/html", _index_html, [&](const String& var) {
-      return processor(var);
-    });
+    request->send(200, "text/html", (String)_index_html);
   });
 
   // Start server
@@ -40,19 +37,12 @@ void WifiManager::setup(std::function<void(int speedX, int speedY)> setSpeed) {
 void WifiManager::loop() {
   // loop
   _ws.cleanupClients();
-  digitalWrite(ledPin, ledState);
-}
-
-void WifiManager::notifyClients() {
-  _ws.textAll(String(ledState));
 }
 
 void WifiManager::handleWebSocketMessage(void *arg, uint8_t *data, size_t len) {
   AwsFrameInfo *info = (AwsFrameInfo*)arg;
   if (info->final && info->index == 0 && info->len == len && info->opcode == WS_TEXT) {
     data[len] = 0;
-    Serial.print("Data: ");
-    Serial.println((char*)data);
     char* chars_array = strtok((char*)data, "|:");
     int xy[2] = {0, 0};
     int index = 0;
@@ -68,14 +58,9 @@ void WifiManager::handleWebSocketMessage(void *arg, uint8_t *data, size_t len) {
         chars_array = strtok(NULL, "|:");
     }
     _setSpeed(xy[0] * 10, xy[1] * 10);
-    // if (strcmp((char*)data, "toggle") == 0) {
-    //   ledState = !ledState;
-    //   notifyClients();
-    // }
   }
 }
 
-// typedef std::function<void(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *data, size_t len)> AwsEventHandler;
 void WifiManager::onEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *data, size_t len) {
   switch (type) {
     case WS_EVT_CONNECT:
@@ -91,21 +76,4 @@ void WifiManager::onEvent(AsyncWebSocket * server, AsyncWebSocketClient * client
     case WS_EVT_ERROR:
       break;
   }
-}
-
-String WifiManager::processHtml() {
-  return _index_html;
-}
-
-String WifiManager::processor(const String& var) {
-  Serial.println(var);
-  if(var == "STATE"){
-    if (ledState){
-      return "ON";
-    }
-    else{
-      return "OFF";
-    }
-  }
-  return String();
 }
